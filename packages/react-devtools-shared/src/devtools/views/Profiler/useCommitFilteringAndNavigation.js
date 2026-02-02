@@ -7,7 +7,7 @@
  * @flow
  */
 
-import {useCallback, useMemo, useState} from 'react';
+import {useCallback, useMemo, useState, useRef} from 'react';
 import {useLocalStorage} from '../hooks';
 
 import type {CommitDataFrontend} from './types';
@@ -44,6 +44,13 @@ export function useCommitFilteringAndNavigation(
   const [selectedCommitIndex, selectCommitIndex] = useState<number | null>(
     null,
   );
+
+  // Reset commit index when commitData changes (e.g., when switching roots).
+  const prevCommitDataRef = useRef<Array<CommitDataFrontend>>(commitData);
+  if (prevCommitDataRef.current !== commitData) {
+    prevCommitDataRef.current = commitData;
+    selectCommitIndex(commitData.length > 0 ? 0 : null);
+  }
 
   const calculateFilteredIndices = useCallback(
     (enabled: boolean, minDuration: number): Array<number> => {
